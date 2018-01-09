@@ -10,6 +10,7 @@ import psycopg2 as pg2
 import psycopg2.extras as pg2ext
 import random
 import unittest
+import logging
 
 # Configuration variables
 tables = {
@@ -82,7 +83,15 @@ def _insertBatch(data, tableLabel):
     """Load a batch of rows to the database."""
     table = tables[tableLabel]
     cursor = dictCursor()
+    #if data list is empty do nothing
+    if not data:
+        logging.info("data set empty, nothing to save into DB")
+        return
     dataFields = data[0].keys()
+    
+    
+        
+    
     tableFields = []
     for dataField in dataFields:
         if dataField == "id":

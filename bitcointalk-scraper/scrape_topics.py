@@ -6,8 +6,8 @@ import os
 import sys
 import traceback
 
-startTopicId = 1
-stopTopicId = 50
+startTopicId = 1724848
+stopTopicId = 1724848
 
 logging.basicConfig(
     level=logging.INFO,

@@ -5,3 +5,7 @@ target
 .DS_Store
 .vagrant
 ubuntu-xenial-16.04-cloudimg-console.log
+bitcointalk-scraper_justrun/
+bitcointalk-scraper/crawlerdb_backup.sql
+bitcointalk-scraper/.pydevproject
+bitcointalk-scraper/.pgpass

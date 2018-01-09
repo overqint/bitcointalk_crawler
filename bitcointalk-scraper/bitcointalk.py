@@ -7,6 +7,7 @@ import HTMLParser
 import json
 import logging
 import lxml.html
+from lxml import etree
 import requests
 import os
 from random import random
@@ -17,7 +18,7 @@ import unittest
 
 baseUrl = "https://bitcointalk.org/index.php"
 countRequested = 0
-interReqTime = 2
+interReqTime = 1
 lastReqTime = None
 
 
@@ -26,7 +27,8 @@ def _request(payloadString):
     global countRequested
     global lastReqTime
     if lastReqTime is not None and time.time() - lastReqTime < interReqTime:
-        timeToSleep = random()*(interReqTime-time.time()+lastReqTime)*2
+        #timeToSleep = random()*(interReqTime-time.time()+lastReqTime)*2
+        timeToSleep = random()*(interReqTime-time.time()+lastReqTime)
         logging.info("Sleeping for {0} seconds before request.".format(
             timeToSleep))
         time.sleep(timeToSleep)
@@ -44,7 +46,8 @@ def _request(payloadString):
 
 def requestBoardPage(boardId, topicOffest=0):
     """Method for requesting a board."""
-    return _request("board={0}.{1}".format(boardId, topicOffest))
+    logging.info("request: board={0}.{1};sort=last_post;desc".format(boardId, topicOffest))
+    return _request("board={0}.{1};sort=last_post;desc".format(boardId, topicOffest))
 
 
 def requestProfile(memberId):
@@ -104,9 +107,16 @@ def parseBoardPage(html):
     for topic in topics:
         # print topic.text_content()
         topicCells = topic.cssselect("td")
+        
+        
+        
         if len(topicCells) != 7:
             continue
         topicLinks = topicCells[2].cssselect("span>a")
+        
+
+        
+        
         if len(topicLinks) > 0:
             linkPayload = topicLinks[0].attrib['href'].replace(
                 baseUrl, '')[1:]
@@ -250,9 +260,16 @@ def parseTopicPage(html, todaysDate=datetime.utcnow().date()):
                 "td.td_headerandpost>table>tr>td>div.smalltext")[0]
             m['post_time'] = postTime.text_content().strip().replace(
                 "Today at", todaysDate.strftime("%B %d, %Y,"))
+            
             m['post_time'] = datetime.strptime(
                 m['post_time'], "%B %d, %Y, %I:%M:%S %p")
-
+            #logging.info(">>Starting scrape of topic ID {0}...".format(datetime.strptime("2017-06-01", "%Y-%m-%d") > datetime.now()))
+            #logging.info(m['post_time'].strftime("%Y-%m-%d") > datetime.now().strftime("%Y-%m-%d"))
+            #logging.info(m['post_time'].strftime("%Y-%m-%d"))
+            #logging.info(m['post_time'].strftime("%Y-%m-%d") < "2017-06-01")
+            
+            if m['post_time'].strftime("%Y-%m-%d") < "2017-06-01":
+                break
             # Parse the topic position
             messageNumber = innerPost.cssselect(
                 "td.td_headerandpost>table>tr>td>div>a.message_number")[0]
@@ -260,18 +277,40 @@ def parseTopicPage(html, todaysDate=datetime.utcnow().date()):
 
             # Extract the content
             corePost = innerPost.cssselect("div.post")[0]
+            
+            #get quote
+            #topicQuotes = innerPost.cssselect("div.post>div.quoteheader")[0]
+            #logging.info((etree.tostring(topicQuotes, pretty_print=True)))
+            quote = {}
+            quote['quote'] = []
+            #m['content_quote'].append(1)
+            
             m['content'] = lxml.html.tostring(corePost).strip()[18:-6]
             m['content_no_html'] = corePost.text_content()
             for child in corePost.iterchildren():
                 if (child.tag == "div" and 'class' in child.attrib and
                     (child.attrib['class'] == 'quoteheader' or
                         child.attrib['class'] == 'quote')):
+                    quote['quote'].append(child)
                     corePost.remove(child)
             m['content_no_quote'] = lxml.html.tostring(corePost).strip()[18:-6]
             m['content_no_quote_no_html'] = corePost.text_content()
-
+            
+            quoteString = ""
+            for quotetext in quote['quote']:
+                #quoteString += lxml.html.tostring(quotetext)
+                quoteString += quotetext.text_content()
+            #logging.info(quoteString)
+            #m['quote'] = quoteString
+            m['quote'] = quoteString
+            
             messages.append(m)
-
+    
+    #print('\n'.join([','.join(['{:4}'.format(item) for item in row]) for row in messages]) )
+    #import numpy as np
+    #messages_np = np.array(messages)
+    #print messages_np
+    
     data['messages'] = messages
     return data
 

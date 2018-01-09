@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS message (
     subject TEXT,
     link TEXT,
     content TEXT,
+	quote TEXT,
     content_no_html TEXT,
     content_no_quote TEXT,
     content_no_quote_no_html TEXT,
