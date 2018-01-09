@@ -8,10 +8,10 @@ import traceback
 import time
 import numpy as np
 
-boardId = 1
+boardId = 67
 # restrict the number of board pages that will be scraped
-restrictPageNumTo = 1
-restrictTopicNum = 300
+restrictPageNumTo = 240
+#restrictTopicNum = 300
 
 logging.basicConfig(
     level=logging.INFO,

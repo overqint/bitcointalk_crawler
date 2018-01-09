@@ -20,7 +20,7 @@ baseUrl = "https://bitcointalk.org/index.php"
 countRequested = 0
 interReqTime = 1
 lastReqTime = None
-
+date_scrape_limit = "2017-11-10"
 
 def _request(payloadString):
     """Private method for requesting an arbitrary query string."""
@@ -268,7 +268,8 @@ def parseTopicPage(html, todaysDate=datetime.utcnow().date()):
             #logging.info(m['post_time'].strftime("%Y-%m-%d"))
             #logging.info(m['post_time'].strftime("%Y-%m-%d") < "2017-06-01")
             
-            if m['post_time'].strftime("%Y-%m-%d") < "2017-06-01":
+            #do not scrape pots that are older than the given date
+            if m['post_time'].strftime("%Y-%m-%d") < date_scrape_limit:
                 break
             # Parse the topic position
             messageNumber = innerPost.cssselect(
