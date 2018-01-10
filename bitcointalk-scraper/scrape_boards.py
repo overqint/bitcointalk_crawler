@@ -10,7 +10,9 @@ import numpy as np
 
 boardId = 67
 # restrict the number of board pages that will be scraped
-restrictPageNumTo = 240
+restrictPageNumTo = 320
+#define start page of board
+scrapeFromThisPage = 115
 #restrictTopicNum = 300
 
 logging.basicConfig(
@@ -33,7 +35,7 @@ logging.info("Found {0} topic pages in board...".format(
     board['num_pages']))
 logging.info("{0} will be scraped".format(
     numberOfPages))
-for boardPageNum in range(1, numberOfPages + 1):
+for boardPageNum in range(scrapeFromThisPage, numberOfPages + 1):
     logging.info(">Scraping page {0}...".format(boardPageNum))
     topicIds = memoizer.scrapeTopicIds(boardId, boardPageNum)    
     # numberOfPages = restrictTopicNum if restrictTopicNum else 0  
